@@ -1,0 +1,16 @@
+# Skills
+
+> Public Agent Skills collection by Maksym Stoianov, not tied to any single framework. Each skill is a self-contained `SKILL.md` following the open Agent Skills specification (agentskills.io), installable in Claude Code, Gemini CLI, Cursor, Codex, and any client that implements the spec.
+
+No skills published yet — the repository is scaffolded and ready for the first one.
+
+## Reference
+
+- [README](README.md): installation, `npm run skills:*`, adding a new skill.
+- [marketplace.json](.claude-plugin/marketplace.json): Claude Code plugin marketplace manifest.
+- [gemini-extension.json](gemini-extension.json): root Gemini CLI extension manifest.
+- [plugin.json](plugin.json): generic agent-plugins.org manifest for Codex and other compatible clients.
+
+## Optional
+
+- [LICENSE](LICENSE): Apache License 2.0.
