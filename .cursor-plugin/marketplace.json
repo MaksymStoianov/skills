@@ -6,7 +6,17 @@
   },
   "metadata": {
     "description": "Public skill collection by Maksym Stoianov",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "gitea-tea",
+      "description": "Manages issues, pull requests, labels, comments, and releases on a Gitea server via the official `tea` CLI — structured issue descriptions with checklists, Gitea's native scoped/exclusive labels, and the PR review/merge workflow.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/gitea-tea"
+      ]
+    }
+  ]
 }

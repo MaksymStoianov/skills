@@ -1,6 +1,6 @@
 {
   "name": "skills",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Public Agent Skills collection by Maksym Stoianov, not tied to any single framework.",
   "keywords": [
@@ -8,7 +8,9 @@
     "skills",
     "claude-code",
     "gemini-cli",
-    "codex"
+    "codex",
+    "gitea",
+    "tea-cli"
   ],
   "homepage": "https://github.com/MaksymStoianov/skills#readme",
   "repository": {

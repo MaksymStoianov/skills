@@ -2,7 +2,9 @@
 
 > Public Agent Skills collection by Maksym Stoianov, not tied to any single framework. Each skill is a self-contained `SKILL.md` following the open Agent Skills specification (agentskills.io), installable in Claude Code, Gemini CLI, Cursor, Codex, and any client that implements the spec.
 
-No skills published yet — the repository is scaffolded and ready for the first one.
+## Skills
+
+- [gitea-tea](skills/gitea-tea/SKILL.md): Manages issues, pull requests, labels, comments, and releases on a Gitea server via the official `tea` CLI.
 
 ## Reference
 
