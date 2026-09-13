@@ -2,12 +2,18 @@
 name: gitea-tea
 description: Manages issues, pull requests, labels, comments, and releases on a Gitea server via the official `tea` CLI — structured issue descriptions with checklists, Gitea's native scoped/exclusive labels (Kind/*, Priority/*), and the PR review/merge workflow. Use when creating or triaging issues, reviewing/merging pull requests, or managing labels and releases on Gitea from the command line.
 license: Apache-2.0
+compatibility: Requires the tea CLI (https://gitea.com/gitea/tea); scripts/check-exclusive-labels.sh requires python3.
 metadata:
   author: Maksym Stoianov
   version: "1.0.0"
 ---
 
 # Gitea tea
+
+## Available files
+
+- **`references/cli-reference.md`** — full flag tables for `issues`, `pulls`, `labels`, `comments`, `milestones`, `releases`, `login`. Load it when a command needs a flag not shown in the examples below.
+- **`scripts/check-exclusive-labels.sh`** — checks a comma-separated label list for two labels sharing the same scope (e.g. `Kind/Bug,Kind/Feature`) before it reaches `tea`, which can't catch this itself (see Gotchas). Run with `--help` for usage.
 
 ## Setup
 
@@ -56,7 +62,10 @@ Gitea labels containing a `/` are **scoped** — `Kind/Bug`, `Priority/High`. Th
 ```bash
 tea labels list
 tea labels create --name "Priority/Critical" --color "#d73a4a" --description "Blocks a release"
-tea issues edit 42 --add-labels "Priority/Critical" --remove-labels "Priority/Medium"
+
+# Verify the label set has no scope conflict before applying it — tea won't warn you.
+scripts/check-exclusive-labels.sh "Priority/Critical" && \
+  tea issues edit 42 --add-labels "Priority/Critical" --remove-labels "Priority/Medium"
 ```
 
 A reasonable default taxonomy — adapt names to the project, not mandatory:
@@ -103,5 +112,6 @@ tea comments list 42
 
 - [ ] Every issue/PR body is one paragraph of context plus a checklist, not undifferentiated prose.
 - [ ] `Kind/*` and `Priority/*` (or the project's equivalent scopes) are marked Exclusive in the Gitea UI, not just named with a `/`.
+- [ ] `scripts/check-exclusive-labels.sh` passes on the final label set before it's sent to `tea`.
 - [ ] Label edits on existing issues use `--add-labels`/`--remove-labels`/`--set-labels`, never a bare `--labels`.
 - [ ] The merge `--style` used matches the repository's configured allowed merge styles.
