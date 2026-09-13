@@ -1,0 +1,36 @@
+{
+  "name": "skills",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Public Agent Skills collection by Maksym Stoianov, not tied to any single framework.",
+  "keywords": [
+    "agent-skills",
+    "skills",
+    "claude-code",
+    "gemini-cli",
+    "codex"
+  ],
+  "homepage": "https://github.com/MaksymStoianov/skills#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaksymStoianov/skills.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MaksymStoianov/skills/issues"
+  },
+  "author": {
+    "name": "Maksym Stoianov",
+    "email": "stoianov.maksym@gmail.com",
+    "url": "https://maksymstoianov.com"
+  },
+  "license": "Apache-2.0",
+  "scripts": {
+    "skills:init": "npx --yes skills init",
+    "skills:add": "npx --yes skills add --agent '*' --yes",
+    "skills:list": "npx --yes skills list",
+    "skills:find": "npx --yes skills find",
+    "skills:use": "npx --yes skills use",
+    "skills:update": "npx --yes skills update --yes",
+    "skills:remove": "npx --yes skills remove --yes"
+  }
+}
