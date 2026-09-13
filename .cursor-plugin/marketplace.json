@@ -1,0 +1,12 @@
+{
+  "name": "maksymstoianov-skills",
+  "owner": {
+    "name": "Maksym Stoianov",
+    "email": "stoianov.maksym@gmail.com"
+  },
+  "metadata": {
+    "description": "Публичная коллекция скилов Maksym Stoianov",
+    "version": "0.2.0"
+  },
+  "plugins": []
+}
