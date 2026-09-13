@@ -8,7 +8,9 @@ For skills specific to the [boot.gs](https://github.com/bootgs/boot) framework, 
 
 ## Available skills
 
-None yet — the repository is scaffolded and ready for the first one.
+| Skill | Description |
+|---|---|
+| [`gitea-tea`](./skills/gitea-tea) | Issues, pull requests, labels, comments, and releases on Gitea via the official `tea` CLI. |
 
 ## Installation
 

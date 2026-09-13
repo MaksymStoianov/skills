@@ -3,5 +3,12 @@
   "interface": {
     "displayName": "Maksym Stoianov Skills"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "gitea-tea",
+      "source": "./",
+      "description": "Manages issues, pull requests, labels, comments, and releases on a Gitea server via the official tea CLI.",
+      "category": "Developer Tools"
+    }
+  ]
 }
