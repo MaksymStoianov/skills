@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "skills",
+  "version": "0.2.0",
+  "description": "Public Agent Skills collection by Maksym Stoianov, not tied to any single framework.",
+  "author": {
+    "name": "Maksym Stoianov",
+    "email": "stoianov.maksym@gmail.com",
+    "url": "https://maksymstoianov.com"
+  },
+  "homepage": "https://github.com/MaksymStoianov/skills#readme",
+  "repository": "https://github.com/MaksymStoianov/skills",
+  "license": "Apache-2.0",
+  "keywords": [
+    "agent-skills",
+    "skills",
+    "claude-code",
+    "gemini-cli",
+    "codex"
+  ],
+  "skills": "./skills/"
+}
