@@ -1,6 +1,7 @@
 # Skills
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+[![skills.sh](https://skills.sh/b/MaksymStoianov/skills)](https://skills.sh/MaksymStoianov/skills)
 
 Public skill collection by Maksym Stoianov, not tied to any single framework. Each skill is a self-contained directory under `skills/` with a `SKILL.md` file and, where useful, `scripts/`, `references/`, or `assets/`. The format follows the open [Agent Skills specification](https://agentskills.io/specification) — skills here work with any agent that implements it, not just Claude. [`llms.txt`](./llms.txt) at the root gives agents and crawlers a short index.
 
