@@ -5,7 +5,7 @@ license: Apache-2.0
 compatibility: Requires git and the GitHub CLI (`gh`), authenticated (`gh auth status`). scripts/validate-pr-title.sh requires bash.
 metadata:
   author: Maksym Stoianov
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # Create Pull Request
@@ -195,16 +195,24 @@ its own security-disclosure policy (`SECURITY.md`) for extra precautions.
 
 - **A repo's title rule can contradict the "obvious" default.** Some CI
   checks require a capitalized summary and no trailing period; commitlint's
-  own default `subject-case` rule requires the opposite (lowercase). Don't
-  assume — read the actual config (step 2).
+  own default `subject-case` rule requires the opposite (lowercase) at the
+  time of writing — commitlint can change its defaults across major
+  versions, so don't assume either direction, read the repo's actual config
+  (step 2).
 - **Scopes only count if the repo's own tooling recognizes them.** A scope
   name that "sounds right" but isn't in the lint config's allow-list fails
   CI the same as a missing scope.
-- **A PR template with unpopulated placeholders is worse than no
-  template.** If a section doesn't apply, remove it or explicitly say why,
-  rather than leaving the template's instructional text in place.
+- **A PR template left with its own instructional placeholders intact
+  reads to a reviewer as boilerplate that was never filled in** — e.g. a
+  merged PR body still showing literal `<!-- Describe your changes -->`.
+  If a template section doesn't apply, remove it or explicitly say why,
+  rather than leaving its placeholder text in place.
 - **`gh pr create` fails if the branch isn't pushed yet** — push before
   create, not after.
+- **The exact `gh` flags/fields used here (`--json isPrivate`, `--draft`,
+  `gh pr ready`, etc.) are this CLI's current surface, not a guarantee.**
+  If a command errors as unrecognized, check `gh <command> --help` before
+  assuming the skill's usage is wrong.
 - **A large diff, log, or merged-PR history can flood the context
   window.** `git diff` without `--stat`, an unfiltered `git log`, or
   `gh pr list --state merged` without `--limit` can return far more than
