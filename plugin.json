@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "skills",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Public Agent Skills collection by Maksym Stoianov, not tied to any single framework.",
   "author": {
     "name": "Maksym Stoianov",
@@ -18,7 +18,10 @@
     "gemini-cli",
     "codex",
     "gitea",
-    "tea-cli"
+    "tea-cli",
+    "github",
+    "pull-request",
+    "gh-cli"
   ],
   "skills": "./skills/"
 }

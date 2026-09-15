@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Public skill collection by Maksym Stoianov",
-    "version": "0.3.0"
+    "version": "0.4.0"
   },
   "plugins": [
     {
@@ -16,6 +16,15 @@
       "strict": false,
       "skills": [
         "./skills/gitea-tea"
+      ]
+    },
+    {
+      "name": "create-pr",
+      "description": "Creates a GitHub pull request via the `gh` CLI with a title matching the repository's own detected convention and a body from its own PR template, instead of assuming one convention.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/create-pr"
       ]
     }
   ]

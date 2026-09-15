@@ -5,6 +5,7 @@
 ## Skills
 
 - [gitea-tea](skills/gitea-tea/SKILL.md): Manages issues, pull requests, labels, comments, and releases on a Gitea server via the official `tea` CLI.
+- [create-pr](skills/create-pr/SKILL.md): Creates a GitHub pull request via the `gh` CLI with a title matching the repository's own detected convention and a body from its own PR template.
 
 ## Reference
 
