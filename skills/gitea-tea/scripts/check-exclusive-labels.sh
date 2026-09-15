@@ -44,7 +44,7 @@ fi
 
 python3 -c "
 import sys
-labels = [l.strip() for l in '$1'.split(',') if l.strip()]
+labels = [l.strip() for l in sys.argv[1].split(',') if l.strip()]
 scopes = {}
 conflicts = []
 for label in labels:
@@ -60,4 +60,4 @@ if conflicts:
         print(f'Conflict in scope \"{scope}\": {\", \".join(members)}', file=sys.stderr)
     sys.exit(2)
 sys.exit(0)
-"
+" "$1"
