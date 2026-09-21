@@ -27,7 +27,11 @@
 set -euo pipefail
 
 usage() {
-  sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+  # The whole leading comment block, however long it grows. A fixed line range
+  # silently stops covering the header the first time a line is added to it:
+  # `2,20p` stopped one line short of "Exit codes:", so --help documented
+  # everything except the exit statuses the caller gates on.
+  sed -n '2,/^[^#]/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'
 }
 
 case "${1:-}" in
