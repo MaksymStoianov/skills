@@ -10,7 +10,7 @@
  */
 import { describe, expect, test } from "vitest";
 
-import { skillNames } from "@testkit/repo.ts";
+import { readRepoFile, skillNames } from "@testkit/repo.ts";
 import { sh } from "@testkit/sh.ts";
 import { diff, generate, loadEvalSet, onDisk } from "@testkit/gen-behaviour.ts";
 
@@ -97,6 +97,33 @@ describe("each skill's eval set measures precision, not only recall", () => {
           ).toBe(true);
         }
       }
+    }
+  });
+});
+
+describe("the eval directory is recorded once", () => {
+  test("plugin.json points `claude plugin eval` at tests/skills", () => {
+    const manifest = JSON.parse(readRepoFile("plugin.json")) as { experimental?: { evals?: string } };
+    expect(
+      manifest.experimental?.evals,
+      "plugin.json does not record the eval directory, so a bare `claude plugin eval .` — the " +
+        "invocation the documentation gives — looks in `evals/`, finds nothing, and reports a " +
+        "suite of zero cases as if the repository had none.",
+    ).toBe("tests/skills");
+  });
+
+  test("the npm scripts pass the same directory the manifest names", () => {
+    const pkg = JSON.parse(readRepoFile("package.json")) as { scripts: Record<string, string> };
+    const manifest = JSON.parse(readRepoFile("plugin.json")) as { experimental?: { evals?: string } };
+    for (const [name, script] of Object.entries(pkg.scripts)) {
+      const flag = script.match(/--eval-dir\s+(\S+)/)?.[1];
+      if (!flag) continue;
+      expect(
+        flag,
+        `npm script "${name}" passes --eval-dir ${flag} while plugin.json names ` +
+          `${manifest.experimental?.evals}. The flag wins, so the two disagreeing means the suite a ` +
+          "collaborator runs by hand is not the suite CI runs.",
+      ).toBe(manifest.experimental?.evals);
     }
   });
 });
