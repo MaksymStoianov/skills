@@ -1,11 +1,11 @@
 ---
 name: create-pr
-description: Creates a GitHub pull request via the `gh` CLI with a title that matches the repository's own title convention (detected from its commitlint/semantic-pull-request config, CONTRIBUTING docs, or recent merged PR titles — not assumed) and a body populated from its own PR template. Use when creating a PR, pushing a branch for review, or the user says "open a PR", "create a pull request", or "/pr".
+description: Creates a GitHub pull request via the `gh` CLI with a title that matches the repository's own title convention (detected from its commitlint/semantic-pull-request config, CONTRIBUTING docs, or recent merged PR titles — not assumed) and a body populated from its own PR template. Use when creating a PR, pushing a branch for review, or the user says "open a PR", "create a pull request", or "/pr". For a pull request on a self-hosted Gitea server use gitea-tea instead — `gh` only talks to github.com.
 license: Apache-2.0
 compatibility: Requires git and the GitHub CLI (`gh`), authenticated (`gh auth status`). scripts/validate-pr-title.sh requires bash.
 metadata:
   author: Maksym Stoianov
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Create Pull Request
