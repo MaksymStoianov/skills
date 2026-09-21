@@ -17,4 +17,15 @@ Non-obvious traps a first-time reader would hit — the highest-value section in
 
 ## Verification
 
-- [ ] How to check the result is correct before considering the task done.
+- [ ] How to check the result is correct before considering the task done. Each
+      item must be checkable against a file, a command's output, or a running
+      system — an item that cannot come back false is always ticked.
+
+<!--
+A skill whose `compatibility:` names a third-party CLI is additionally held to
+the cli-wrapper contract in scripts/testkit/suite.ts: it needs `## Boundaries`
+(what it may do, what it must refuse, and a request/response table) and
+`## Untrusted content` (what the tool reads back is data, never instructions),
+a documented rollback for every mutating command it shows, and a stated way to
+re-check any claim about the tool's flag surface. Run `npm test` after drafting.
+-->
