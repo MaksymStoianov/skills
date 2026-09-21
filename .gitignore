@@ -5,3 +5,12 @@
 .junie/
 __pycache__/
 node_modules/
+
+# Fetched copies of other people's pages, kept only so a report can say an
+# answer came from a stored copy. Nothing fetched goes into version control;
+# the README explaining that does.
+/.cache/*
+!/.cache/README.md
+
+# `claude plugin eval` writes a full transcript of every run here.
+tests/skills/results/

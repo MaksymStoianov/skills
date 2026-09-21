@@ -2,6 +2,7 @@
   "name": "skills",
   "version": "0.3.0",
   "private": true,
+  "type": "module",
   "description": "Public Agent Skills collection by Maksym Stoianov, not tied to any single framework.",
   "keywords": [
     "agent-skills",
@@ -27,12 +28,25 @@
   },
   "license": "Apache-2.0",
   "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:live": "LIVE=1 NODE_USE_ENV_PROXY=1 vitest run tests/repo/links.live.test.ts",
+    "test:behaviour": "claude plugin eval . --eval-dir tests/skills --allow-tools Bash",
+    "test:behaviour:gen": "node scripts/testkit/gen-behaviour.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "node scripts/lint-license.ts",
     "skills:init": "npx --yes skills init",
     "skills:add": "npx --yes skills add --agent '*' --yes",
     "skills:list": "npx --yes skills list",
     "skills:find": "npx --yes skills find",
     "skills:use": "npx --yes skills use",
     "skills:update": "npx --yes skills update --yes",
-    "skills:remove": "npx --yes skills remove --yes"
+    "skills:remove": "npx --yes skills remove --yes",
+    "test:behaviour:validate": "claude plugin eval . --eval-dir tests/skills --max-cost-usd 0 --trust-plugin"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
   }
 }
