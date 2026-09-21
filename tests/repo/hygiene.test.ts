@@ -61,6 +61,17 @@ describe("the traps stay closed", () => {
     ).toBe(true);
   });
 
+  test("the harness imports its own siblings relatively, not through the alias", () => {
+    const offenders = OUR_TS.filter((rel) => rel.startsWith("scripts/") && /@testkit\//.test(codeOf(rel)));
+    expect(
+      offenders,
+      "these files under scripts/ import through the @testkit alias. Only vitest resolves that " +
+        "alias, so the file loads under test and fails with ERR_MODULE_NOT_FOUND under bare node — " +
+        "which is how gen-behaviour.ts, linkcheck.ts and lint-license.ts are all documented to run. " +
+        "The alias is for test cases, whose only runner is vitest.",
+    ).toEqual([]);
+  });
+
   test("every relative import of a .ts file carries its extension", () => {
     const offenders: string[] = [];
     for (const rel of OUR_TS) {

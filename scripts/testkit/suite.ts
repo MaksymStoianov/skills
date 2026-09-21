@@ -28,7 +28,7 @@ import {
   loadSkill,
   proseOnly,
   section,
-} from "@testkit/repo.ts";
+} from "./repo.ts";
 
 /** Every threshold the contract enforces, in one place. */
 export const LIMITS = {
