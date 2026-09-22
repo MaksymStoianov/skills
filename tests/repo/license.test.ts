@@ -125,6 +125,19 @@ describe("the sweep fires on a tree broken in each way it names", () => {
     ).toContain("license/skill-copyright");
   });
 
+  test("the licence copy itself is not asked to carry a header", () => {
+    // The regression this pairs with: the header rule and the licence-copy rule
+    // landed within an hour of each other, and the first fired on the second's
+    // file. A licence states the terms in full, and the Apache-2.0 text is
+    // verbatim or it is not that licence — there is nowhere in it to put a
+    // header, so demanding one is the check firing on correct content.
+    const dir = scratchRepo();
+    expect(
+      lintLicense(dir).filter((f) => f.rule === "license/skill-bundle").map((f) => f.file),
+      "the sweep asked the licence text itself to state its licence.",
+    ).toEqual([]);
+  });
+
   test("a bundled script with no SPDX header", () => {
     const dir = scratchRepo();
     const path = join(dir, "skills", "create-pr", "scripts", "validate-pr-title.sh");

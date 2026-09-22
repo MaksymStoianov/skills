@@ -39,14 +39,14 @@ npx skills add MaksymStoianov/skills
 ### What an installed skill carries
 
 An installer copies `skills/<name>/` and nothing above it, so the root
-[`LICENSE`](./LICENSE) does not travel with it. The terms ride inside the files
-instead: `license: Apache-2.0` and `metadata.copyright` in the `SKILL.md`
-frontmatter, and an `SPDX-License-Identifier: Apache-2.0` header in every file
-bundled beside it. Passing an installed skill on to anyone else is
-redistribution under Apache-2.0 — keep those notices with it, record where it
-came from (`skills-lock.json` does that for skills installed with the CLI), and
-include the [licence text](https://www.apache.org/licenses/LICENSE-2.0), which
-the installed copy names by SPDX id but does not contain.
+[`LICENSE`](./LICENSE) does not travel with it. Everything a consumer needs is
+therefore inside the directory: a verbatim copy of the licence text, plus
+`license: Apache-2.0` and `metadata.copyright` in the `SKILL.md` frontmatter and
+an `SPDX-License-Identifier: Apache-2.0` header in every file bundled beside it,
+so a single file lifted out on its own still states its terms. Passing an
+installed skill on to anyone else is redistribution under Apache-2.0: keep the
+licence and those notices with it, and record where it came from
+(`skills-lock.json` does that for skills installed with the CLI).
 
 ## Managing skills
 
