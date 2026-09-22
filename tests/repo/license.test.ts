@@ -103,6 +103,39 @@ describe("the sweep fires on a tree broken in each way it names", () => {
     ).toContain("license/skill-frontmatter");
   });
 
+  test("a SKILL.md that names no copyright holder", () => {
+    const dir = scratchRepo();
+    const path = join(dir, "skills", "create-pr", "SKILL.md");
+    writeFileSync(path, readFileSync(path, "utf8").replace(/^ {2}copyright: .*\n/m, ""));
+    expect(
+      rules(dir),
+      "the installed copy of a skill would name no licensor at all; the root LICENSE that names " +
+        "one is the file an installer leaves behind.",
+    ).toContain("license/skill-copyright");
+  });
+
+  test("a SKILL.md whose copyright names someone other than the licensor", () => {
+    const dir = scratchRepo();
+    const path = join(dir, "skills", "create-pr", "SKILL.md");
+    writeFileSync(path, readFileSync(path, "utf8").replace(/^ {2}copyright: .*$/m, '  copyright: "2026 Someone Else"'));
+    expect(
+      rules(dir),
+      "a skill claimed a different copyright holder from the one the root LICENSE grants on behalf " +
+        "of, and the sweep accepted both.",
+    ).toContain("license/skill-copyright");
+  });
+
+  test("a bundled script with no SPDX header", () => {
+    const dir = scratchRepo();
+    const path = join(dir, "skills", "create-pr", "scripts", "validate-pr-title.sh");
+    writeFileSync(path, readFileSync(path, "utf8").replace(/^#\s*SPDX-License-Identifier: .*\n/m, ""));
+    expect(
+      rules(dir),
+      "a script that ships inside the directory an installer copies carried no statement of its " +
+        "terms, and the root LICENSE does not travel with it.",
+    ).toContain("license/skill-bundle");
+  });
+
   test("a marketplace entry with no licence", () => {
     const dir = scratchRepo();
     editJson(dir, marketplaceManifests(dir)[0], (d) => {

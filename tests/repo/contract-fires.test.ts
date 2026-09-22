@@ -23,9 +23,10 @@ function mutate(edit: (raw: string) => string, path = GOOD.path): Skill {
   return buildSkill(GOOD.dir, edit(GOOD.raw), path);
 }
 
-function replaceOnce(raw: string, find: string, replacement: string): string {
-  if (!raw.includes(find)) throw new Error(`mutation target not found: ${JSON.stringify(find)}`);
-  return raw.replace(find, replacement);
+function replaceOnce(raw: string, find: string | RegExp, replacement: string): string {
+  const mutated = raw.replace(find, replacement);
+  if (mutated === raw) throw new Error(`mutation target not found: ${String(find)}`);
+  return mutated;
 }
 
 /** A throwaway skill directory, for the checks that look at files on disk. */
@@ -58,7 +59,11 @@ const MUTATIONS: Record<string, () => Skill> = {
       ),
     ),
   "frontmatter/license": () => mutate((r) => replaceOnce(r, "license: Apache-2.0", "license: UNLICENSED")),
-  "frontmatter/version-quoted-semver": () => mutate((r) => replaceOnce(r, 'version: "1.2.1"', "version: 1.20")),
+  // Matched against whatever version the skill declares today: a literal here
+  // ages out at the next bump, and a mutation that no longer applies is exactly
+  // what this file exists to make visible.
+  "frontmatter/version-quoted-semver": () =>
+    mutate((r) => replaceOnce(r, /version: "\d+\.\d+\.\d+"/, "version: 1.20")),
   "structure/single-h1": () => mutate((r) => replaceOnce(r, "## Setup", "# Setup")),
   "structure/section-gotchas": () => mutate((r) => replaceOnce(r, "## Gotchas", "## Notes")),
   "structure/section-verification": () => mutate((r) => replaceOnce(r, "## Verification", "## Wrap-up")),
@@ -107,8 +112,13 @@ describe("every contract check fires on the defect it names", () => {
         () => check.run(GOOD),
         `${id} fails against an unmodified skill, so the mutation below proves nothing.`,
       ).not.toThrow();
+      // Built before the assertion, never inside it: a mutation whose target has
+      // moved throws, and inside `.toThrow()` that error is indistinguishable
+      // from the check firing — the rule then reads as proven by a mutation that
+      // was never applied to anything.
+      const mutant = build();
       expect(
-        () => check.run(build()),
+        () => check.run(mutant),
         `${id} passed a skill deliberately broken in exactly the way it exists to catch. Until it ` +
           "fails here, a green suite is not evidence about this rule.",
       ).toThrow();

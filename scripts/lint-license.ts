@@ -7,8 +7,14 @@
  * shipping a file whose terms a reader cannot establish. Each rule below covers
  * one place someone actually looks: the root LICENSE, the two package manifests,
  * each SKILL.md (which is what a consumer vendoring a single skill directory
- * gets), and every plugin entry in every marketplace manifest, which is what
- * they read at install time.
+ * gets), every file bundled beside it, and every plugin entry in every
+ * marketplace manifest, which is what they read at install time.
+ *
+ * An installer copies the skill directory and nothing above it, so the root
+ * LICENSE does not travel. The terms therefore ride in the files themselves —
+ * `license:` in the SKILL.md frontmatter, an SPDX header in everything bundled
+ * with it — rather than in a licence file inside the directory, which in this
+ * tree is the marker that the directory belongs to someone else (THIRD-PARTY.md).
  *
  * Usage:
  *   node scripts/lint-license.ts [--json] [--root <dir>] [--help]
@@ -48,11 +54,36 @@ function exists(path: string): boolean {
   }
 }
 
-/** Frontmatter `license:` without parsing the whole document. */
-function frontmatterLicense(text: string): string | undefined {
+/** A frontmatter value without parsing the whole document; `key` may be indented. */
+function frontmatterValue(text: string, key: RegExp): string | undefined {
   const end = text.indexOf("\n---", 4);
   const head = end === -1 ? text : text.slice(0, end);
-  return head.match(/^license:\s*(.+)$/m)?.[1].trim().replace(/^["']|["']$/g, "");
+  return head.match(key)?.[1].trim().replace(/^["']|["']$/g, "");
+}
+
+function frontmatterLicense(text: string): string | undefined {
+  return frontmatterValue(text, /^license:\s*(.+)$/m);
+}
+
+/** The copyright holder the root LICENSE's appendix actually names. */
+function licensedBy(root: string): string | undefined {
+  try {
+    return readFileSync(join(root, "LICENSE"), "utf8").match(/^\s*Copyright \d{4} (.+)$/m)?.[1].trim();
+  } catch {
+    return undefined;
+  }
+}
+
+/** Every file in a skill directory except its SKILL.md, skill-relative. */
+function bundledFiles(dir: string, base = dir): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith(".")) continue;
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...bundledFiles(full, base));
+    else if (full !== join(base, "SKILL.md")) out.push(relative(base, full));
+  }
+  return out.sort();
 }
 
 function checkSpdxField(value: unknown, rule: string, file: string, where: string, out: Finding[]): void {
@@ -150,20 +181,76 @@ export function lintLicense(root: string): Finding[] {
   const plugin = readJson(join(root, "plugin.json"));
   if (plugin) checkSpdxField(plugin.license, "license/plugin-json", "plugin.json", "plugin.json `license`", out);
 
-  // 4. Each SKILL.md: what a consumer who vendors one directory actually reads.
+  // 4. Each skill directory: what an installer copies, and all it copies. The
+  //    SKILL.md states the terms and names the licensor; every file bundled
+  //    beside it carries the id, because a script lifted out of an installed
+  //    skill travels on its own from there.
   const skillsDir = join(root, "skills");
+  const holder = licensedBy(root);
   if (exists(skillsDir)) {
     for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
+      const skillDir = join(root, "skills", entry.name);
       const file = join("skills", entry.name, "SKILL.md");
       if (!exists(join(root, file))) continue;
+      const text = readFileSync(join(root, file), "utf8");
       checkSpdxField(
-        frontmatterLicense(readFileSync(join(root, file), "utf8")),
+        frontmatterLicense(text),
         "license/skill-frontmatter",
         file,
         `${file} frontmatter \`license:\``,
         out,
       );
+
+      const copyright = frontmatterValue(text, /^ {2}copyright:\s*(.+)$/m);
+      if (!copyright) {
+        out.push({
+          rule: "license/skill-copyright",
+          file,
+          message:
+            `${file} frontmatter has no \`metadata.copyright:\`. An installer copies this directory ` +
+            "and leaves the root LICENSE behind, so this line is the only place the installed copy " +
+            `names its licensor — and Apache-2.0 §4 asks whoever passes it on to keep that notice.`,
+        });
+      } else if (holder && !copyright.includes(holder)) {
+        out.push({
+          rule: "license/skill-copyright",
+          file,
+          message:
+            `${file} is copyright ${JSON.stringify(copyright)} but the root LICENSE grants on behalf ` +
+            `of ${JSON.stringify(holder)}. Two licensors stated for one file leaves a consumer unable ` +
+            "to tell who actually granted them anything.",
+        });
+      } else if (!/^\d{4} /.test(copyright)) {
+        out.push({
+          rule: "license/skill-copyright",
+          file,
+          message:
+            `${file} states copyright ${JSON.stringify(copyright)}, which carries no four-digit year. ` +
+            "Apache-2.0's own notice form is `Copyright [yyyy] [name]`; a notice without the year is " +
+            "not the one the appendix asks to be reproduced.",
+        });
+      }
+
+      for (const rel of bundledFiles(skillDir)) {
+        const bundled = join("skills", entry.name, rel);
+        let body: string;
+        try {
+          body = readFileSync(join(root, bundled), "utf8");
+        } catch {
+          continue; // not text; nothing to carry a header
+        }
+        if (!body.includes(`SPDX-License-Identifier: ${SPDX_ID}`)) {
+          out.push({
+            rule: "license/skill-bundle",
+            file: bundled,
+            message:
+              `${bundled} carries no \`SPDX-License-Identifier: ${SPDX_ID}\` header. It ships inside ` +
+              "the skill directory an installer copies, so the root LICENSE never reaches it; once " +
+              "someone lifts this one file out, nothing on it says what they may do with it.",
+          });
+        }
+      }
     }
   }
 
@@ -216,8 +303,9 @@ function main(argv: string[]): number {
         "Usage: node scripts/lint-license.ts [--json] [--root <dir>]",
         "",
         "Checks that one licence is stated everywhere a consumer looks: LICENSE,",
-        "package.json, plugin.json, each SKILL.md, and every plugin entry in every",
-        "marketplace manifest, plus THIRD-PARTY.md for anything vendored.",
+        "package.json, plugin.json, each SKILL.md and the files bundled beside it,",
+        "and every plugin entry in every marketplace manifest, plus THIRD-PARTY.md",
+        "for anything vendored.",
         "",
         "Exit status: 0 clean, 1 at least one finding, 2 usage error.",
         "",

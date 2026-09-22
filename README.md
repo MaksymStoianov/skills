@@ -36,6 +36,18 @@ The manifest is the root [`gemini-extension.json`](./gemini-extension.json), whi
 npx skills add MaksymStoianov/skills
 ```
 
+### What an installed skill carries
+
+An installer copies `skills/<name>/` and nothing above it, so the root
+[`LICENSE`](./LICENSE) does not travel with it. The terms ride inside the files
+instead: `license: Apache-2.0` and `metadata.copyright` in the `SKILL.md`
+frontmatter, and an `SPDX-License-Identifier: Apache-2.0` header in every file
+bundled beside it. Passing an installed skill on to anyone else is
+redistribution under Apache-2.0 — keep those notices with it, record where it
+came from (`skills-lock.json` does that for skills installed with the CLI), and
+include the [licence text](https://www.apache.org/licenses/LICENSE-2.0), which
+the installed copy names by SPDX id but does not contain.
+
 ## Managing skills
 
 `package.json` wraps the [`skills` CLI](https://github.com/vercel-labs/skills) (Create → Read → Update → Delete):
@@ -56,8 +68,9 @@ npm run skills:remove
 
 1. Copy `template/SKILL.md.template` to `skills/<skill-name>/SKILL.md`.
 2. Fill in `name` and `description` in the frontmatter — `description` determines when an agent loads the skill on its own.
-3. Add `./skills/<skill-name>` to the relevant plugin (or a new one) in `.claude-plugin/marketplace.json`, `.cursor-plugin/marketplace.json`, and `.agents/plugins/marketplace.json`, each entry carrying `"license": "Apache-2.0"`.
-4. Add `tests/skills/<skill-name>/contract.test.ts` with `describeSkill("<skill-name>")`, and an eval set in `tests/skills/<skill-name>/evals.ts`. Run `npm run test:behaviour:gen`, then `npm test`.
+3. Give every file bundled beside `SKILL.md` an `SPDX-License-Identifier: Apache-2.0` header — a comment line for scripts and YAML, an HTML comment for markdown. That header is all an installed copy says about its terms.
+4. Add `./skills/<skill-name>` to the relevant plugin (or a new one) in `.claude-plugin/marketplace.json`, `.cursor-plugin/marketplace.json`, and `.agents/plugins/marketplace.json`, each entry carrying `"license": "Apache-2.0"`.
+5. Add `tests/skills/<skill-name>/contract.test.ts` with `describeSkill("<skill-name>")`, and an eval set in `tests/skills/<skill-name>/evals.ts`. Run `npm run test:behaviour:gen`, then `npm test`.
 
 ## Testing
 

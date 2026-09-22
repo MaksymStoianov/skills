@@ -4,6 +4,7 @@ description: State what this skill lets the agent do and, in the same sentence, 
 license: Apache-2.0
 metadata:
   author: Maksym Stoianov
+  copyright: "2026 Maksym Stoianov"
   version: "1.0.0"
 ---
 
