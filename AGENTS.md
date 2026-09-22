@@ -152,13 +152,15 @@ verbatim terms with the appendix filled in.
   [`THIRD-PARTY.md`](./THIRD-PARTY.md), with any upstream `NOTICE` propagated —
   and its absence recorded as checked rather than left looking like an oversight.
 - Every file this repository wrote carries `SPDX-License-Identifier: Apache-2.0`,
-  so a copied file travels with its terms. Under `skills/` that is the whole
-  mechanism, not a formality: an installer copies the skill directory and leaves
-  the root `LICENSE` behind, so the `SKILL.md` frontmatter (`license:` and
-  `metadata.copyright:`) plus a header in every bundled file are all the
-  installed copy says about its terms. A licence *file* inside a skill directory
-  means the opposite here — it is this tree's marker for someone else's code
-  (§1), so the repository's own skills must not carry one.
+  so a copied file travels with its terms. Under `skills/` that matters twice
+  over: an installer copies the skill directory and leaves the root `LICENSE`
+  behind, so each skill directory ships its own verbatim copy of it, and the
+  notices ride in the files — `license:` and `metadata.copyright:` in the
+  `SKILL.md` frontmatter, a header in everything bundled beside it. The licence
+  file itself is exempt from the header rule: it states the terms in full, and
+  the Apache-2.0 text is verbatim or it is not that licence. A licence file that
+  *differs* from the root one still means what it always meant here — someone
+  else's code, recorded in `THIRD-PARTY.md` (§1).
 - The SPDX id is stated in `package.json`, `plugin.json`, every `SKILL.md`
   frontmatter, and **every plugin entry in every marketplace manifest** — that
   entry is what a consumer reads at install time, which makes it the worst place

@@ -11,10 +11,12 @@
  * marketplace manifest, which is what they read at install time.
  *
  * An installer copies the skill directory and nothing above it, so the root
- * LICENSE does not travel. The terms therefore ride in the files themselves —
- * `license:` in the SKILL.md frontmatter, an SPDX header in everything bundled
- * with it — rather than in a licence file inside the directory, which in this
- * tree is the marker that the directory belongs to someone else (THIRD-PARTY.md).
+ * LICENSE does not travel with it. A skill directory therefore carries its own
+ * copy of the terms, and the notices ride in the files themselves: `license:`
+ * and `metadata.copyright:` in the SKILL.md frontmatter, an SPDX header in
+ * everything bundled beside it. A licence file that *differs* from the root one
+ * is a different statement entirely — someone else's code, recorded in
+ * THIRD-PARTY.md, which `vendoredDirs()` below is what decides.
  *
  * Usage:
  *   node scripts/lint-license.ts [--json] [--root <dir>] [--help]
@@ -26,6 +28,9 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 export const SPDX_ID = "Apache-2.0";
+
+/** A licence file, whatever the spelling: LICENSE, LICENCE, LICENSE.txt, … */
+const LICENCE_FILE = /^LICEN[CS]E(\.\w+)?$/i;
 
 /** npm's own convention for "no licence", not an SPDX id — and not `Unlicense`,
  * which is a public-domain dedication meaning very nearly the opposite. */
@@ -134,7 +139,7 @@ export function vendoredDirs(root: string): string[] {
     } catch {
       return;
     }
-    const licence = entries.find((e) => e.isFile() && /^LICEN[CS]E(\.\w+)?$/i.test(e.name));
+    const licence = entries.find((e) => e.isFile() && LICENCE_FILE.test(e.name));
     const isOurs =
       licence !== undefined &&
       ourLicence !== null &&
@@ -182,9 +187,10 @@ export function lintLicense(root: string): Finding[] {
   if (plugin) checkSpdxField(plugin.license, "license/plugin-json", "plugin.json", "plugin.json `license`", out);
 
   // 4. Each skill directory: what an installer copies, and all it copies. The
-  //    SKILL.md states the terms and names the licensor; every file bundled
-  //    beside it carries the id, because a script lifted out of an installed
-  //    skill travels on its own from there.
+  //    SKILL.md states the terms and names the licensor, the directory carries
+  //    the licence text itself, and every other file bundled beside it carries
+  //    the id — because a script lifted out of an installed skill travels on
+  //    its own from there, without even the directory around it.
   const skillsDir = join(root, "skills");
   const holder = licensedBy(root);
   if (exists(skillsDir)) {
@@ -208,9 +214,9 @@ export function lintLicense(root: string): Finding[] {
           rule: "license/skill-copyright",
           file,
           message:
-            `${file} frontmatter has no \`metadata.copyright:\`. An installer copies this directory ` +
-            "and leaves the root LICENSE behind, so this line is the only place the installed copy " +
-            `names its licensor — and Apache-2.0 §4 asks whoever passes it on to keep that notice.`,
+            `${file} frontmatter has no \`metadata.copyright:\`. It is the one statement of licensor ` +
+            "an agent or an index reads without opening the licence text, and Apache-2.0 §4 asks " +
+            "whoever passes this directory on to keep that notice with it.",
         });
       } else if (holder && !copyright.includes(holder)) {
         out.push({
@@ -234,6 +240,12 @@ export function lintLicense(root: string): Finding[] {
 
       for (const rel of bundledFiles(skillDir)) {
         const bundled = join("skills", entry.name, rel);
+        // A licence file is exempt: it states the terms in full, which is the
+        // thing the header is shorthand for, and the Apache-2.0 text is
+        // reproduced verbatim or it is not that licence — there is nowhere in
+        // it to put a header. A licence that differs from the root one is
+        // someone else's, and `license/third-party` is what catches that.
+        if (LICENCE_FILE.test(rel.split("/").pop()!)) continue;
         let body: string;
         try {
           body = readFileSync(join(root, bundled), "utf8");
