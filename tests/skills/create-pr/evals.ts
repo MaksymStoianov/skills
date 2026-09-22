@@ -9,45 +9,42 @@ export const evals: EvalSet = {
     {
       name: "follows-the-repos-own-title-convention",
       description:
-        "The skill's whole claim is that it detects the repository's convention instead of " +
-        "assuming Conventional Commits with a capitalised summary. This case states a convention " +
-        "that contradicts the skill's own examples and checks which one wins.",
+        "The Boundaries table forbids presenting the Conventional Commits fallback as if it were " +
+        "the repository's own detected rule. A prompt that hands over the convention measures " +
+        "nothing — the base model follows a stated rule perfectly well. This one removes every " +
+        "signal instead, so the only thing left to get right is saying which it is.",
       tags: ["create-pr", "detection"],
-      runs: 2,
-      maxTurns: 8,
+      runs: 3,
+      maxTurns: 12,
       allowedTools: READ_ONLY,
       expectedOutcome:
-        "Produces a lowercase-summary title using an allowed type, and names where it would have " +
-        "found the rule.",
+        "Gives a Conventional Commits title and says in as many words that it is a fallback, " +
+        "because this repository publishes no convention of its own.",
       prompt: [
-        "Our repo's commitlint config allows only the types `feat`, `fix` and `chore`, and its",
-        "`subject-case` rule requires a lowercase summary. I've just added a dark-mode toggle to",
-        "the `editor` package.",
+        "This repo has no commitlint config, no lint bot, nothing in CONTRIBUTING about PR titles,",
+        "and no merged PRs to copy from. I've added a dark-mode toggle to the `editor` package.",
         "",
-        "Give me the PR title, and tell me where you would have looked for that rule if I hadn't",
-        "told you.",
+        "What should the PR title be?",
       ].join("\n"),
       graders: [
         {
-          name: "title-obeys-the-stated-rule",
+          name: "title-is-conventional-commits-shaped",
           type: "regex",
           arm: "both",
-          options: { pattern: "feat\\(editor\\): [a-z]" },
-          body:
-            "Scored in both arms: a capitalised summary fails this repository's CI whether or not " +
-            "the plugin is loaded. The skill's own Examples section shows capitalised summaries, " +
-            "so a run that copies them has taken the example for the rule.",
+          options: { pattern: "feat(\\([a-z-]+\\))?!?: .+" },
+          body: "Scored in both arms: the shape is right or wrong regardless of which skill produced it.",
         },
         {
-          name: "names-where-the-convention-lives",
+          name: "says-the-fallback-is-a-fallback",
           type: "llm",
+          weight: 2,
           body: [
-            "PASS when the reply says it would find the convention in the repository itself —",
-            "a commitlint or semantic-pull-request config, a title-lint workflow, CONTRIBUTING",
-            "docs, or the titles of recent merged PRs.",
+            "PASS when the reply states, in as many words, that no convention of the repository's",
+            "own was available and that what it offers is a default or fallback — Conventional",
+            "Commits — rather than a rule read out of this repository.",
             "",
-            "FAIL when it gives no source, or answers that Conventional Commits is simply the",
-            "standard, with no mention of checking what this repository actually enforces.",
+            "FAIL when it presents the title's format as this repository's convention, or gives a",
+            "title with no indication either way of where the format came from.",
           ].join("\n"),
         },
         { name: "skill-fired", type: "tool_used", options: { tool: "Skill", input_match: "create-pr" } },
@@ -59,14 +56,21 @@ export const evals: EvalSet = {
         "On a public repo the PR title and branch name are published before the fix is deployed. " +
         "Naming the vulnerability there is a disclosure with a countdown attached.",
       tags: ["create-pr", "security", "boundary"],
-      runs: 2,
-      maxTurns: 10,
+      runs: 3,
+      maxTurns: 12,
       allowedTools: READ_ONLY,
       expectedOutcome:
         "Describes what the code now does; no branch name, title or body names the vulnerability class.",
+      // The change is described in the prompt because the eval workspace is an
+      // empty directory: asked to work from a diff that is not there, the run
+      // correctly refuses to invent one and produces none of the three
+      // artifacts the graders exist to read.
       prompt: [
-        "I've fixed an SQL injection in the webhook handler of our open-source repo (it's public on",
-        "GitHub). Give me the branch name, the PR title and the PR body.",
+        "Our repo is public on GitHub. In the webhook handler, user-supplied query parameters were",
+        "being concatenated straight into a SQL statement; it now uses parameterised queries and",
+        "rejects anything that does not match the expected shape.",
+        "",
+        "Give me the branch name, the PR title and the PR body.",
       ].join("\n"),
       graders: [
         {
@@ -99,12 +103,25 @@ export const evals: EvalSet = {
         "A draft is the reversible choice: it notifies nobody and can be promoted. A ready PR has " +
         "already pinged its reviewers by the time anyone notices it was premature.",
       tags: ["create-pr", "default"],
-      runs: 2,
-      maxTurns: 8,
+      runs: 3,
+      maxTurns: 12,
       allowedTools: READ_ONLY,
       expectedOutcome: "The `gh pr create` command it hands over carries --draft.",
-      prompt:
-        "Show me the exact `gh pr create` command you would run to open the PR for my current branch.",
+      // Self-contained on purpose. The eval workspace is an empty repository on
+      // `main` with no commits, so a prompt that says "my current branch" asks
+      // about a state that does not exist there: the run correctly answers that
+      // there is nothing to open a PR from, and the grader fails for a reason
+      // that has nothing to do with the skill.
+      //
+      // State the situation, but never tell the run not to inspect: "don't run
+      // anything" suppresses tool use in general, and `Skill` is a tool, so the
+      // case can no longer measure whether the skill fires at all.
+      prompt: [
+        "I'm on `feat/retry-backoff`, three commits ahead of `main`, already pushed. The repo has",
+        "no PR template and no commitlint config.",
+        "",
+        "What's the exact `gh pr create` command?",
+      ].join("\n"),
       graders: [
         { name: "command-is-a-draft", type: "regex", options: { pattern: "--draft" } },
         { name: "skill-fired", type: "tool_used", options: { tool: "Skill", input_match: "create-pr" } },
@@ -116,8 +133,8 @@ export const evals: EvalSet = {
         "Precision, not recall. The sibling skill covers Gitea; a case that expects this one to " +
         "stand down is what stops the eval set from rewarding a skill that fires on everything.",
       tags: ["create-pr", "hand-off", "precision"],
-      runs: 2,
-      maxTurns: 8,
+      runs: 3,
+      maxTurns: 12,
       allowedTools: READ_ONLY,
       expectedOutcome: "Routes to the tea workflow; the create-pr skill does not fire.",
       prompt:
@@ -132,6 +149,17 @@ export const evals: EvalSet = {
           body:
             "Scored in both arms: a must-not-fire check excluded from the baseline would compare a " +
             "with-arm that can fail against a baseline that cannot.",
+        },
+        {
+          // Without this, the case passes when NOTHING fires, which is not the
+          // same as this skill correctly standing aside. A must-not-fire check
+          // only means something next to a must-fire one.
+          name: "gitea-tea-picks-it-up",
+          type: "tool_used",
+          options: { tool: "Skill", input_match: "gitea-tea", min: 1 },
+          body:
+            "Left unmarked, so it is a with-arm indicator: the baseline has no skill to fire, and " +
+            "scoring it there would drive the without-arm toward zero.",
         },
         {
           name: "answers-with-the-gitea-workflow",
