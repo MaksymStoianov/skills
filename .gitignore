@@ -12,5 +12,11 @@ node_modules/
 /.cache/*
 !/.cache/README.md
 
+# The same payloads under the layout a skill resolves from the working
+# directory: <project>/sources/, with the raw bodies at sources/.cache/. A
+# skill run from here caches into this repository, and that corpus is working
+# data for whoever is running it.
+/sources/
+
 # `claude plugin eval` writes a full transcript of every run here.
 tests/skills/results/
