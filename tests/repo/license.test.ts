@@ -11,7 +11,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { REPO_ROOT } from "@testkit/repo.ts";
-import { runNodeScript } from "@testkit/sh.ts";
+import { runNodeScript, sh } from "@testkit/sh.ts";
 import { SPDX_ID, lintLicense, marketplaceManifests, vendoredDirs } from "../../scripts/lint-license.ts";
 
 const LINTER = join(REPO_ROOT, "scripts", "lint-license.ts");
@@ -118,6 +118,44 @@ describe("the sweep fires on a tree broken in each way it names", () => {
       rules(dir),
       "someone else's Apache-2.0 code was redistributed with nothing recording whose it is",
     ).toContain("license/third-party");
+  });
+});
+
+describe("nothing under a foreign licence is tracked", () => {
+  test("every SKILL.md git tracks declares this repository's licence", async () => {
+    // Scoped to what git tracks, not what is on disk: a skill installed here as
+    // a tool is fine, and the only question is whether pushing would publish it.
+    // `.agents/skills/` is tracked, so a proprietary skill dropped in there is
+    // one `git add -f` — or one deleted .gitignore line — away from being public.
+    const listed = await sh("git", ["ls-files", "*SKILL.md"], { cwd: REPO_ROOT });
+    const tracked = listed.stdout.trim().split("\n").filter(Boolean);
+    expect(tracked.length, "git tracks no SKILL.md at all; the check is looking in the wrong place").toBeGreaterThan(0);
+
+    const thirdParty = (() => {
+      try {
+        return readFileSync(join(REPO_ROOT, "THIRD-PARTY.md"), "utf8");
+      } catch {
+        return "";
+      }
+    })();
+
+    const foreign: string[] = [];
+    for (const rel of tracked) {
+      const head = readFileSync(join(REPO_ROOT, rel), "utf8").split("\n---")[0];
+      const declared = head.match(/^license:\s*(.+)$/m)?.[1].trim().replace(/^["']|["']$/g, "");
+      if (declared === undefined || declared === SPDX_ID) continue;
+      // A vendored directory recorded in THIRD-PARTY.md keeps its own terms.
+      if (thirdParty.includes(rel.split("/").slice(0, -1).join("/"))) continue;
+      foreign.push(`${rel}: ${declared}`);
+    }
+
+    expect(
+      foreign,
+      "these tracked files declare a licence that is neither this repository's nor recorded in " +
+        "THIRD-PARTY.md. This repository is public: whatever git tracks is published on the next " +
+        "push, and a file marked proprietary is the one thing that must never get there by " +
+        "accident.",
+    ).toEqual([]);
   });
 });
 
