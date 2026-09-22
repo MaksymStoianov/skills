@@ -23,5 +23,8 @@
     "pull-request",
     "gh-cli"
   ],
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "experimental": {
+    "evals": "tests/skills"
+  }
 }

@@ -1,11 +1,11 @@
 ---
 name: gitea-tea
-description: Manages issues, pull requests, labels, comments, and releases on a Gitea server via the official `tea` CLI — detects each repo's own issue templates and label set before drafting, type-specific structured bodies (bug/feature/tech debt/spike) with checklists, Gitea's native scoped/exclusive labels (Kind/*, Priority/*), a preview-and-confirm step before creating, and the PR review/merge workflow. Use when creating or triaging issues, reviewing/merging pull requests, or managing labels and releases on Gitea from the command line.
+description: Manages issues, pull requests, labels, comments, and releases on a Gitea server via the official `tea` CLI — detects each repo's own issue templates and label set before drafting, type-specific structured bodies (bug/feature/tech debt/spike) with checklists, Gitea's native scoped/exclusive labels (Kind/*, Priority/*), a preview-and-confirm step before creating, and the PR review/merge workflow. Use when creating or triaging issues, reviewing/merging pull requests, or managing labels and releases on Gitea from the command line. For a pull request on GitHub use create-pr instead — `tea` authenticates against a Gitea server and cannot see github.com.
 license: Apache-2.0
 compatibility: Requires the tea CLI (https://gitea.com/gitea/tea); scripts/check-exclusive-labels.sh requires python3.
 metadata:
   author: Maksym Stoianov
-  version: "1.2.1"
+  version: "1.3.0"
 ---
 
 # Gitea tea

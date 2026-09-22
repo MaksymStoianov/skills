@@ -56,8 +56,27 @@ npm run skills:remove
 
 1. Copy `template/SKILL.md.template` to `skills/<skill-name>/SKILL.md`.
 2. Fill in `name` and `description` in the frontmatter — `description` determines when an agent loads the skill on its own.
-3. Add `./skills/<skill-name>` to the relevant plugin (or a new one) in `.claude-plugin/marketplace.json`, `.cursor-plugin/marketplace.json`, and `.agents/plugins/marketplace.json`.
+3. Add `./skills/<skill-name>` to the relevant plugin (or a new one) in `.claude-plugin/marketplace.json`, `.cursor-plugin/marketplace.json`, and `.agents/plugins/marketplace.json`, each entry carrying `"license": "Apache-2.0"`.
+4. Add `tests/skills/<skill-name>/contract.test.ts` with `describeSkill("<skill-name>")`, and an eval set in `tests/skills/<skill-name>/evals.ts`. Run `npm run test:behaviour:gen`, then `npm test`.
+
+## Testing
+
+See [`tests/README.md`](./tests/README.md) for what each layer proves.
+
+```bash
+npm test                        # contract, scripts, unit, integration, repo invariants
+npm run test:live               # every cited URL, against the real internet
+npm run test:behaviour:validate # load every eval case, spend nothing
+npm run test:behaviour          # the release gate; every run is a real model call
+npm run lint                    # one licence, stated everywhere a consumer looks
+npm run typecheck
+```
+
+`npm test` needs to bind a loopback HTTP server for the integration layer; a
+sandbox that forbids `listen` fails those cases with `EPERM` rather than an
+assertion.
 
 ## License
 
-[Apache License 2.0](./LICENSE)
+[Apache License 2.0](./LICENSE) for everything here, except the vendored
+directories recorded in [`THIRD-PARTY.md`](./THIRD-PARTY.md).

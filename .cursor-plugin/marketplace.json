@@ -12,6 +12,7 @@
     {
       "name": "gitea-tea",
       "description": "Manages issues, pull requests, labels, comments, and releases on a Gitea server via the official `tea` CLI — structured issue descriptions with checklists, Gitea's native scoped/exclusive labels, and the PR review/merge workflow.",
+      "license": "Apache-2.0",
       "source": "./",
       "strict": false,
       "skills": [
@@ -21,6 +22,7 @@
     {
       "name": "create-pr",
       "description": "Creates a GitHub pull request via the `gh` CLI with a title matching the repository's own detected convention and a body from its own PR template, instead of assuming one convention.",
+      "license": "Apache-2.0",
       "source": "./",
       "strict": false,
       "skills": [
