@@ -5,7 +5,7 @@
  * A lint that has only ever been run against a correct tree is a lint nobody has
  * seen work. Each rule below is given a tree broken in exactly the way it names.
  */
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
@@ -119,6 +119,20 @@ describe("the sweep fires on a tree broken in each way it names", () => {
       "someone else's Apache-2.0 code was redistributed with nothing recording whose it is",
     ).toContain("license/third-party");
   });
+
+  test("a skill directory carrying a licence that is not ours", () => {
+    // The distinction is by content, not by filename: shipping our own terms
+    // beside our own work must stay free, and swapping in a different licence
+    // must still be caught.
+    const dir = scratchRepo();
+    const path = join(dir, "skills", "create-pr", "LICENSE");
+    writeFileSync(path, "MIT License\n\nCopyright 2026 Someone Else\n");
+    expect(
+      vendoredDirs(dir),
+      "a skill directory was given someone else's licence and the sweep read it as our own",
+    ).toContain(join("skills", "create-pr"));
+    expect(rules(dir)).toContain("license/third-party");
+  });
 });
 
 describe("nothing under a foreign licence is tracked", () => {
@@ -175,6 +189,31 @@ describe("the sweep against this repository", () => {
       "a directory carrying its own licence file appeared or disappeared. Either something was " +
         "vendored without being recorded, or a third-party licence file was deleted.",
     ).toEqual([".agents/skills/skill-creator"]);
+  });
+
+  test("every skill directory ships the licence its frontmatter declares", () => {
+    // The installer copies a skill directory, not the repository, so a consumer
+    // who installs one reads whatever is in that directory and nothing else.
+    const ours = readFileSync(join(REPO_ROOT, "LICENSE"), "utf8");
+    const missing = readdirSync(join(REPO_ROOT, "skills"), { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name)
+      .filter((name) => {
+        try {
+          return readFileSync(join(REPO_ROOT, "skills", name, "LICENSE"), "utf8") !== ours;
+        } catch {
+          return true;
+        }
+      });
+
+    expect(
+      missing,
+      "these skill directories declare " +
+        SPDX_ID +
+        " in their frontmatter and do not carry the text. Apache-2.0 §4(a) requires giving a " +
+        "recipient a copy of the licence, and the recipient of a skill is whoever installs that " +
+        "one directory.",
+    ).toEqual([]);
   });
 
   test("the linter is runnable as a command and exits non-zero on findings", async () => {

@@ -78,10 +78,24 @@ function checkSpdxField(value: unknown, rule: string, file: string, where: strin
   }
 }
 
-/** Directories vendored from elsewhere, identified by carrying their own licence. */
+/**
+ * Directories vendored from elsewhere, identified by carrying their own licence.
+ *
+ * A licence file identical to the root one is not that: it is this repository
+ * shipping its own terms beside its own work, which a skill directory has to
+ * do because the installer copies the directory and not the repository. Only a
+ * *different* licence means someone else's code.
+ */
 export function vendoredDirs(root: string): string[] {
   const out: string[] = [];
   const skip = new Set([".git", "node_modules", ".cache", ".idea", ".junie"]);
+  const ourLicence = (() => {
+    try {
+      return readFileSync(join(root, "LICENSE"), "utf8");
+    } catch {
+      return null;
+    }
+  })();
   const walk = (dir: string): void => {
     let entries;
     try {
@@ -89,8 +103,18 @@ export function vendoredDirs(root: string): string[] {
     } catch {
       return;
     }
-    const hasLicence = entries.some((e) => e.isFile() && /^LICEN[CS]E(\.\w+)?$/i.test(e.name));
-    if (hasLicence && dir !== root) out.push(relative(root, dir));
+    const licence = entries.find((e) => e.isFile() && /^LICEN[CS]E(\.\w+)?$/i.test(e.name));
+    const isOurs =
+      licence !== undefined &&
+      ourLicence !== null &&
+      (() => {
+        try {
+          return readFileSync(join(dir, licence.name), "utf8") === ourLicence;
+        } catch {
+          return false;
+        }
+      })();
+    if (licence !== undefined && !isOurs && dir !== root) out.push(relative(root, dir));
     for (const entry of entries) {
       if (entry.isDirectory() && !skip.has(entry.name)) walk(join(dir, entry.name));
     }
