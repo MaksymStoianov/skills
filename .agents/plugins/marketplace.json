@@ -17,6 +17,13 @@
       "description": "Creates a GitHub pull request with a title matching the repository's own detected convention and a body from its own PR template.",
       "license": "Apache-2.0",
       "category": "Developer Tools"
+    },
+    {
+      "name": "pre-publish-review",
+      "source": "./skills/pre-publish-review",
+      "description": "Reviews anything about to become public against three axes: whose material it contains, whether it is lawful where its readers are, and whether it excludes or insults anyone.",
+      "license": "Apache-2.0",
+      "category": "Developer Tools"
     }
   ]
 }

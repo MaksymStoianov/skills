@@ -28,6 +28,16 @@
       "skills": [
         "./skills/create-pr"
       ]
+    },
+    {
+      "name": "pre-publish-review",
+      "description": "Reviews anything about to become public against three axes: whose material it contains, whether it is lawful where its readers are, and whether it excludes or insults anyone.",
+      "license": "Apache-2.0",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/pre-publish-review"
+      ]
     }
   ]
 }

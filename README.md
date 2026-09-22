@@ -13,6 +13,7 @@ For skills specific to the [boot.gs](https://github.com/bootgs/boot) framework, 
 |---|---|
 | [`gitea-tea`](./skills/gitea-tea) | Issues, pull requests, labels, comments, and releases on Gitea via the official `tea` CLI. |
 | [`create-pr`](./skills/create-pr) | Creates a GitHub PR via `gh` with a title matching the repo's own detected convention and a body from its own PR template. |
+| [`pre-publish-review`](./skills/pre-publish-review) | Checks what is about to be published for other people's material, unlawful content where its readers are, and language or data that excludes anyone. |
 
 ## Installation
 
