@@ -373,7 +373,11 @@ export const CHECKS: Check[] = [
     group: "bundle",
     title: "every bundled file is introduced in the body",
     run(skill) {
-      const bundled = skill.files.filter((f) => f !== "SKILL.md");
+      // A licence file is not progressive disclosure: it is there for whoever
+      // installs the directory, not for the agent to load. Apache-2.0 §4(a)
+      // requires it to travel with the work, so it is bundled weight on
+      // purpose and the body has no reason to introduce it.
+      const bundled = skill.files.filter((f) => f !== "SKILL.md" && !/^LICEN[CS]E(\.\w+)?$/i.test(f));
       const mentioned = new Set(referencedPaths(skill));
       const introduced = (f: string): boolean => {
         if (mentioned.has(f)) return true;
